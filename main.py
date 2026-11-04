@@ -7,17 +7,28 @@ model = OllamaLLM(model="llama3.2")
 template = """
 You are an expert in answering questions about books. 
 
-Here are some books: {books}
+Review the books in the digital library: {books}
 
-Here is the question to answer: {question}
+Using only the digital library, answer the following question(s): {question}
 """
 
-# Chat promtp template that takes in the books and question variables for the model to respond to them
+# Chat prompt template that takes in the books and question variables for the model to respond to them
 prompt = ChatPromptTemplate.from_template(template)
 
 # invoke chain that combines multiple things together to run LLM
 # prompt taken from template and passed to the model
 chain = prompt | model
+
+# the following function extracts the text and title metadata fromt he LangChain Document objects and structures them cleanly for the prompt context.
+def format_retireved_books(docs):
+    formatted_books = []
+    # iterate through the retrieved documents and extract the title and content metadata, then format them into a string for the prompt context
+    for doc in docs:
+        title = doc.metadata.get("title", "Unknown Book")
+        content = doc.page_content.strip()
+
+        formatted_books.append(f"Title: {title}\nContent: {content}")
+    return "\n\n".join(formatted_books)
 
 while True:
     print("\n\n----------------------------------------------------")
@@ -25,8 +36,9 @@ while True:
     print("\n\n")
     if question.lower() == 'exit':
         break
-    
-    # use retriever to retrieve relevant information from the vector database based on the question, with a maximum of 5 results returned then use as a parameter to the prompt template and model to get the answer
-    book_content = retriver.invoke(question)
+
+    # fetch the relevant book content from the vector database using the retriever and format it for the prompt context as a clean unified markdown string then pass the formatted string to the model along with the question to get the answer from the model
+    raw_book_content = retriver.invoke(question)
+    book_content = format_retireved_books(raw_book_content)
     result = chain.invoke({"books": book_content, "question": question})
     print(result)
