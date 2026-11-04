@@ -2,7 +2,7 @@
 # Database hosted on Ollama's vector database ChromaDB (local host), which is a vector database that allows for efficient storage and retrieval of high-dimensional vectors.
 
 import os 
-from langchain_ollama.llms import OllamaEmbeddings # takes text and converts it into a vector representation (numbers) to look up data efficiently
+from langchain_ollama.embeddings import OllamaEmbeddings # takes text and converts it into a vector representation (numbers) to look up data efficiently
 from langchain_chroma import Chroma # vector database that allows for efficient storage and retrieval of high-dimensional vectors
 from langchain_community.document_loaders import DirectoryLoader # loads documents from a directory and converts them into a format that can be used by the vector database
 from langchain_community.document_loaders import TextLoader # loads text files and converts them into a format that can be used by the vector database
