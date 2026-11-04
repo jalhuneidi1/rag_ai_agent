@@ -1,7 +1,7 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate # import chat prompt template
+from vector import retriver # import retriever from vector.py to retrieve relevant information from the vector database
 
-# from vector import retriever
 model = OllamaLLM(model="llama3.2")
 
 template = """
@@ -25,5 +25,8 @@ while True:
     print("\n\n")
     if question.lower() == 'exit':
         break
-    result = chain.invoke({"books": [], "question": question})
+    
+    # use retriever to retrieve relevant information from the vector database based on the question, with a maximum of 5 results returned then use as a parameter to the prompt template and model to get the answer
+    book_content = retriver.invoke(question)
+    result = chain.invoke({"books": book_content, "question": question})
     print(result)
